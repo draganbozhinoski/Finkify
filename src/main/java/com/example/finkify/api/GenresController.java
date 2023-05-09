@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class GenresController {
     @GetMapping
     public String getGenres() {
-        // Define the SPARQL query
         String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "\n" +
@@ -20,24 +19,25 @@ public class GenresController {
                 "?genre a <http://dbpedia.org/ontology/MusicGenre> ." +
                 "?genre rdfs:label ?genreLabel ." +
                 "FILTER(langMatches(lang(?genreLabel), 'EN'))" +
-                "}";
+                "FILTER(?genreLabel in (\"Rock and Roll\"@en,\"Ballads\"@en,\"Hip-Hop\"@en,\"Latin music\"@en," +
+                "\"Electronic Dance Music\"@en,\"Country\"@en,\"Techno\"@en,\"R&B\"@en,\"K-Pop\"@en,\"Turbo-folk\"@en," +
+                "\"Metal\"@en,\"Heavy Metal\"@en,\"Rap Music\"@en))" +
+        "}";
 
-        // Set up the DBpedia SPARQL endpoint
+
+
         String endpoint = "http://dbpedia.org/sparql";
         Query query = QueryFactory.create(queryString);
         QueryExecution qexec = QueryExecutionFactory.sparqlService(endpoint, query);
 
-        // Execute the query
         ResultSet results = qexec.execSelect();
 
-        // Print out the results
         while (results.hasNext()) {
             QuerySolution soln = results.nextSolution();
             RDFNode genreLabel = soln.get("genreLabel");
             System.out.println(genreLabel);
         }
 
-        // Clean up resources
         qexec.close();
         return "Done";
     }
